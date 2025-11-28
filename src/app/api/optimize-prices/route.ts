@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { ZAI } from 'z-ai-web-dev-sdk'
+import ZAI from 'z-ai-web-dev-sdk'
 
 export async function POST(request: NextRequest) {
   try {
     const { products } = await request.json()
-    
+
     if (!products || !Array.isArray(products)) {
       return NextResponse.json({ error: 'Invalid products data' }, { status: 400 })
     }
@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
         })
 
         const aiResponse = completion.choices[0]?.message?.content
-        
+
         // Parse AI response and generate structured recommendations
         const competitivePrice = Math.round(hpp * 1.2)
         const standardPrice = Math.round(hpp * 1.3)
@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
 
       } catch (aiError) {
         console.error('AI analysis failed:', aiError)
-        
+
         // Fallback to rule-based pricing
         const competitivePrice = Math.round(hpp * 1.2)
         const standardPrice = Math.round(hpp * 1.3)

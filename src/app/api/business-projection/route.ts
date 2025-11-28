@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { ZAI } from 'z-ai-web-dev-sdk'
+import ZAI from 'z-ai-web-dev-sdk'
 
 export async function POST(request: NextRequest) {
   try {
-    const { 
-      productName, 
-      hpp, 
-      currentPrice, 
-      targetProfit, 
-      dailyVolume, 
+    const {
+      productName,
+      hpp,
+      currentPrice,
+      targetProfit,
+      dailyVolume,
       season,
       fixedCosts = 5000000,
       initialInvestment = 50000000
@@ -45,11 +45,11 @@ export async function POST(request: NextRequest) {
     // Generate 12-month projection data
     const projections = []
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-    
+
     for (let i = 0; i < 12; i++) {
       const seasonalFactor = i >= 10 || i <= 1 ? 1.2 : i >= 5 && i <= 7 ? 0.8 : 1.0
       const adjustedVolume = monthlyVolume * seasonalFactor
-      
+
       projections.push({
         month: monthNames[i],
         revenue: adjustedVolume * currentPrice,
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest) {
     let aiInsights = []
     try {
       const zai = await ZAI.create()
-      
+
       const insightPrompt = `
         Analyze this business projection and provide actionable insights:
         
