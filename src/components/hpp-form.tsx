@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Calculator, Plus, Trash2, TrendingUp, DollarSign, Package, Zap, Loader2, Edit, X } from 'lucide-react'
+import { Calculator, Plus, Trash2, TrendingUp, DollarSign, Package, Zap, Loader2, Edit, X, AlertTriangle } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface ProductForm {
@@ -139,9 +139,12 @@ export function HPPForm() {
     }
   }
 
+  const [error, setError] = useState<string | null>(null)
+
   const handleAddProduct = async () => {
     if (currentProduct.name && currentProduct.productionCost > 0) {
       setIsSaving(true)
+      setError(null)
       try {
         const hpp = calculateHPP(currentProduct)
         const isEditing = !!currentProduct.id
@@ -171,11 +174,13 @@ export function HPPForm() {
           }),
         })
 
+        const data = await response.json()
+
         if (!response.ok) {
-          throw new Error('Failed to save product')
+          throw new Error(data.error || 'Failed to save product')
         }
 
-        const savedItem = await response.json()
+        const savedItem = data
 
         if (isEditing) {
           // Update local state
@@ -190,7 +195,9 @@ export function HPPForm() {
         handleCancelEdit() // Reset form
       } catch (error) {
         console.error('Failed to save product:', error)
-        toast.error('Gagal menyimpan produk')
+        const errorMessage = error instanceof Error ? error.message : 'Gagal menyimpan produk'
+        setError(errorMessage)
+        toast.error(errorMessage)
       } finally {
         setIsSaving(false)
       }
@@ -268,6 +275,14 @@ export function HPPForm() {
           </TabsList>
 
           <TabsContent value="form" className="space-y-6">
+            {error && (
+              <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertDescription>
+                  {error}
+                </AlertDescription>
+              </Alert>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <div>
