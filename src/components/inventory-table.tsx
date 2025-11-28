@@ -51,11 +51,16 @@ export function InventoryTable() {
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [showAlertsOnly, setShowAlertsOnly] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   const fetchInventory = async () => {
     setIsLoading(true)
+    setError(null)
     try {
       const res = await fetch('/api/inventory', { cache: 'no-store' })
+      if (!res.ok) {
+        throw new Error(`Failed to fetch: ${res.status} ${res.statusText}`)
+      }
       const data = await res.json()
       if (Array.isArray(data)) {
         const mapped = data.map((item: any) => ({
@@ -75,9 +80,12 @@ export function InventoryTable() {
           leadTime: 1 // Default
         }))
         setInventoryItems(mapped)
+      } else {
+        throw new Error('Invalid data format received')
       }
     } catch (error) {
       console.error('Failed to fetch inventory:', error)
+      setError(error instanceof Error ? error.message : 'An unknown error occurred')
     } finally {
       setIsLoading(false)
     }
@@ -149,6 +157,14 @@ export function InventoryTable() {
 
   return (
     <div className="space-y-6">
+      {error && (
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            Error loading inventory: {error}
+          </AlertDescription>
+        </Alert>
+      )}
       {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
