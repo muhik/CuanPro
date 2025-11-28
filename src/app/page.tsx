@@ -40,8 +40,17 @@ export default function Home() {
   const fetchStats = async () => {
     try {
       const res = await fetch('/api/dashboard/stats')
-      const data = await res.json()
-      setStats(data)
+      if (res.ok) {
+        const data = await res.json()
+        setStats({
+          totalProducts: data.totalProducts || 0,
+          avgHpp: data.avgHpp || 0,
+          monthlyRevenue: data.monthlyRevenue || 0,
+          avgMargin: data.avgMargin || 0
+        })
+      } else {
+        console.error('Failed to fetch stats:', res.statusText)
+      }
 
       const recentRes = await fetch('/api/products/recent')
       const recentData = await recentRes.json()

@@ -4,16 +4,21 @@ import { db } from '@/lib/db'
 // Helper to get or create a demo user
 async function getDemoUser() {
   const email = 'demo@example.com'
-  let user = await db.user.findUnique({ where: { email } })
-  if (!user) {
-    user = await db.user.create({
-      data: {
+  try {
+    return await db.user.upsert({
+      where: { email },
+      update: {},
+      create: {
         email,
         name: 'Demo User',
       }
     })
+  } catch (error) {
+    console.error('Error getting demo user:', error)
+    const user = await db.user.findUnique({ where: { email } })
+    if (!user) throw new Error('Failed to create/find demo user')
+    return user
   }
-  return user
 }
 
 export async function GET() {
