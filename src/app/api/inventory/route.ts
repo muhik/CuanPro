@@ -100,7 +100,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('Failed to create inventory item:', error)
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to create inventory item' },
+      { error: error instanceof Error ? `[v2] ${error.message}` : '[v2] Failed to create inventory item' },
       { status: 500 }
     )
   }
