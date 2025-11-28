@@ -65,7 +65,7 @@ export function HPPForm() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch('/api/inventory')
+        const res = await fetch('/api/inventory', { cache: 'no-store' })
         const data = await res.json()
         if (Array.isArray(data)) {
           const mappedProducts = data.map((item: any) => ({

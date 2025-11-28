@@ -29,7 +29,7 @@ export function AnalyticsDashboard() {
     useEffect(() => {
         const fetchAnalytics = async () => {
             try {
-                const res = await fetch('/api/analytics')
+                const res = await fetch('/api/analytics', { cache: 'no-store' })
                 const jsonData = await res.json()
                 setData(jsonData)
             } catch (error) {

@@ -55,7 +55,7 @@ export function InventoryTable() {
   const fetchInventory = async () => {
     setIsLoading(true)
     try {
-      const res = await fetch('/api/inventory')
+      const res = await fetch('/api/inventory', { cache: 'no-store' })
       const data = await res.json()
       if (Array.isArray(data)) {
         const mapped = data.map((item: any) => ({

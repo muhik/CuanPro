@@ -39,7 +39,7 @@ export default function Home() {
 
   const fetchStats = async () => {
     try {
-      const res = await fetch('/api/dashboard/stats')
+      const res = await fetch('/api/dashboard/stats', { cache: 'no-store' })
       if (res.ok) {
         const data = await res.json()
         setStats({
@@ -52,7 +52,7 @@ export default function Home() {
         console.error('Failed to fetch stats:', res.statusText)
       }
 
-      const recentRes = await fetch('/api/products/recent')
+      const recentRes = await fetch('/api/products/recent', { cache: 'no-store' })
       const recentData = await recentRes.json()
       if (Array.isArray(recentData)) {
         setRecentProducts(recentData)
