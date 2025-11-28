@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 
+export const dynamic = 'force-dynamic'
+
 // Helper to get demo user (same as in inventory route)
 async function getDemoUser() {
     const email = 'demo@example.com'

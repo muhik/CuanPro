@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 
+export const dynamic = 'force-dynamic'
+
 // Helper to get or create a demo user
 async function getDemoUser() {
   const email = 'demo@example.com'
