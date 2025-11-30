@@ -1,6 +1,31 @@
-  inventoryItems InventoryItem[]
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  businesses      Business[]
+  projections     Projection[]
+  inventoryItems  InventoryItem[]
   categoryBudgets CategoryBudget[]
-  
+
   @@map("users")
 }
 
@@ -11,97 +36,97 @@ model Business {
   userId      String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   // Relations
-  user     User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   products Product[]
-  
+
   @@map("businesses")
 }
 
 model Product {
-  id               String   @id @default(cuid())
-  name             String
-  description      String?
-  businessId       String
-  hpp              Float    // Harga Pokok Penjualan
-  targetMargin     Float    @default(0.3) // 30%
-  currentPrice     Float?
-  productionCost  Float    // Biaya produksi langsung
-  laborCost       Float    // Biaya tenaga kerja
-  overheadCost    Float    // Biaya overhead
-  wasteFactor     Float    @default(0.05) // 5%
-  unitProduction  Int      // Jumlah unit produksi
-  category        String?
-  sku             String?  @unique
-  isActive        Boolean  @default(true)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
+  id             String   @id @default(cuid())
+  name           String
+  description    String?
+  businessId     String
+  hpp            Float // Harga Pokok Penjualan
+  targetMargin   Float    @default(0.3) // 30%
+  currentPrice   Float?
+  productionCost Float // Biaya produksi langsung
+  laborCost      Float // Biaya tenaga kerja
+  overheadCost   Float // Biaya overhead
+  wasteFactor    Float    @default(0.05) // 5%
+  unitProduction Int // Jumlah unit produksi
+  category       String?
+  sku            String?  @unique
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
   // Relations
-  business    Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  pricePoints PricePoint[]
-  projections Projection[]
+  business       Business        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  pricePoints    PricePoint[]
+  projections    Projection[]
   inventoryItems InventoryItem[]
-  sales       Sale[]
-  
+  sales          Sale[]
+
   @@map("products")
 }
 
 model PricePoint {
-  id          String   @id @default(cuid())
-  productId   String
-  priceType   String   // competitive, standard, premium
-  price       Float
-  confidence  Float    // AI confidence score
-  reasoning   String?  // AI reasoning
-  createdAt   DateTime @default(now())
-  
+  id         String   @id @default(cuid())
+  productId  String
+  priceType  String // competitive, standard, premium
+  price      Float
+  confidence Float // AI confidence score
+  reasoning  String? // AI reasoning
+  createdAt  DateTime @default(now())
+
   // Relations
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  
+
   @@map("price_points")
 }
 
 model Projection {
-  id              String   @id @default(cuid())
-  productId       String
-  userId          String
-  targetProfit    Float    // Target laba %
-  dailyVolume     Int      // Volume penjualan harian
-  season          String   // peak, off-peak, normal
-  projectedRevenue Float   // Proyeksi omzet
-  breakEvenPoint  Float    // Break even point
-  roi             Float    // Return on Investment
-  cashFlow        Float    // Cash flow forecast
-  sensitivity     Float?   // Hasil analisis sensitivitas
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-  
+  id               String   @id @default(cuid())
+  productId        String
+  userId           String
+  targetProfit     Float // Target laba %
+  dailyVolume      Int // Volume penjualan harian
+  season           String // peak, off-peak, normal
+  projectedRevenue Float // Proyeksi omzet
+  breakEvenPoint   Float // Break even point
+  roi              Float // Return on Investment
+  cashFlow         Float // Cash flow forecast
+  sensitivity      Float? // Hasil analisis sensitivitas
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
   // Relations
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@map("projections")
 }
 
 model InventoryItem {
-  id          String   @id @default(cuid())
-  productId   String
-  userId      String
-  itemName    String
+  id           String   @id @default(cuid())
+  productId    String
+  userId       String
+  itemName     String
   currentStock Int
-  minStock    Int      // Minimum stock untuk reorder alert
-  unitCost    Float
-  lastUpdated DateTime @default(now())
-  reorderAlert Boolean @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  minStock     Int // Minimum stock untuk reorder alert
+  unitCost     Float
+  lastUpdated  DateTime @default(now())
+  reorderAlert Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
   // Relations
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@map("inventory_items")
 }
 
@@ -112,38 +137,38 @@ model CompetitorAnalysis {
   price       Float
   rating      Float?
   reviewCount Int?
-  sentiment   Float?   // Sentiment analysis score
-  source      String   // tokopedia, shopee, etc.
+  sentiment   Float? // Sentiment analysis score
+  source      String // tokopedia, shopee, etc.
   createdAt   DateTime @default(now())
-  
+
   @@map("competitor_analysis")
 }
 
 model Sale {
-  id          String   @id @default(cuid())
-  productId   String
-  quantity    Int
-  totalPrice  Float
-  date        DateTime @default(now())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
+  id         String   @id @default(cuid())
+  productId  String
+  quantity   Int
+  totalPrice Float
+  date       DateTime @default(now())
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
   // Relations
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  
+
   @@map("sales")
 }
 
 model CategoryBudget {
-  id          String   @id @default(cuid())
-  userId      String
-  category    String
-  amount      Float
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  userId    String
+  category  String
+  amount    Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, category])
   @@map("category_budgets")
