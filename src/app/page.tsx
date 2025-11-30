@@ -37,8 +37,11 @@ export default function Home() {
 
   const [recentProducts, setRecentProducts] = useState<{ id: string; name: string; price: number; createdAt: string }[]>([])
 
+  const [error, setError] = useState<string | null>(null)
+
   const fetchStats = async () => {
     try {
+      setError(null)
       const res = await fetch('/api/dashboard/stats', { cache: 'no-store' })
       if (res.ok) {
         const data = await res.json()
@@ -49,16 +52,20 @@ export default function Home() {
           avgMargin: data.avgMargin || 0
         })
       } else {
-        console.error('Failed to fetch stats:', res.statusText)
+        const errData = await res.json().catch(() => ({}))
+        throw new Error(errData.error || `Failed to fetch stats: ${res.status} ${res.statusText}`)
       }
 
       const recentRes = await fetch('/api/products/recent', { cache: 'no-store' })
-      const recentData = await recentRes.json()
-      if (Array.isArray(recentData)) {
-        setRecentProducts(recentData)
+      if (recentRes.ok) {
+        const recentData = await recentRes.json()
+        if (Array.isArray(recentData)) {
+          setRecentProducts(recentData)
+        }
       }
     } catch (error) {
       console.error('Failed to fetch stats:', error)
+      setError(error instanceof Error ? error.message : 'Terjadi kesalahan saat mengambil data')
     }
   }
 
@@ -197,6 +204,16 @@ export default function Home() {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         {/* Stats Cards */}
+        {error && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertDescription>
+              {error}
+              <Button variant="link" className="ml-2 h-auto p-0 text-white underline" onClick={fetchStats}>
+                Coba Lagi
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white">
             <CardContent className="p-6">
